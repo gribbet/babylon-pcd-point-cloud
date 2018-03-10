@@ -37,6 +37,12 @@
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-0.2.5.tgz#2443fc12da514c81346b1a665675559cee21fa75"
 
+"@types/three@^0.89.12":
+  version "0.89.12"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.89.12.tgz#cab29544bbdfbbc62257dd48bf921eb3dc0e055a"
+  dependencies:
+    "@types/webvr-api" "*"
+
 "@types/uglify-js@*":
   version "2.6.30"
   resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-2.6.30.tgz#257d2b6dd86673d60da476680fba90f2e30c6eef"
@@ -51,6 +57,10 @@
     "@types/tapable" "*"
     "@types/uglify-js" "*"
     source-map "^0.6.0"
+
+"@types/webvr-api@*":
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.32.tgz#3afb30b6e06392fb0473a01b350913942ef6fa76"
 
 abbrev@1:
   version "1.1.1"
@@ -5165,6 +5175,10 @@ text-table@^0.2.0:
 textextensions@2:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/textextensions/-/textextensions-2.2.0.tgz#38ac676151285b658654581987a0ce1a4490d286"
+
+three@^0.90.0:
+  version "0.90.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.90.0.tgz#be478e7c0f82c5ae742c197db1e38e58b6190d1b"
 
 through2@^2.0.0:
   version "2.0.3"
