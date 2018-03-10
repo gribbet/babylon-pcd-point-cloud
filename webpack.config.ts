@@ -19,7 +19,9 @@ const configuration: webpack.Configuration = {
         }]
     },
     plugins: [
-        new HtmlWebpackPlugin()
+        new HtmlWebpackPlugin({
+            template: "index.html"
+        })
     ]
 };
 
