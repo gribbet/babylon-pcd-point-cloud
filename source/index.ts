@@ -1,46 +1,52 @@
-import "./PCDLoader.js";
+import * as babylon from "babylonjs";
 
-import * as THREE from "three";
-import { OrbitControls } from "three-orbitcontrols-ts";
-
-const bun = require("./bun.pcd");
-
-const scene = new THREE.Scene();
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-renderer.setClearColor("#000000");
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
+const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+const engine = new babylon.Engine(canvas);
+const scene = new babylon.Scene(engine);
+scene.clearColor = new babylon.Color4(0.8, 0.8, 0.8);
+const camera = new babylon.FreeCamera(
+    "camera",
+    new babylon.Vector3(0, 0, -10),
+    scene
 );
-camera.position.z = 1;
+const light = new babylon.PointLight(
+    "light",
+    new babylon.Vector3(10, 10, 0),
+    scene
+);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const box = babylon.Mesh.CreateBox("box", 2, scene);
+box.rotation.x = -0.2;
+box.rotation.y = -0.4;
 
-document.body.appendChild(renderer.domElement);
+const boxMaterial = new babylon.StandardMaterial("material", scene);
+boxMaterial.emissiveColor = new babylon.Color3(0, 0.58, 0.86);
+box.material = boxMaterial;
 
-window.addEventListener("resize", () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
+const torus = babylon.Mesh.CreateTorus("torus", 2, 0.5, 15, scene);
+torus.position.x = -5;
+torus.rotation.x = 1.5;
 
-const loader = new (THREE as any).PCDLoader();
+const torusMaterial = new babylon.StandardMaterial("material", scene);
+torusMaterial.emissiveColor = new babylon.Color3(0.4, 0.4, 0.4);
+torus.material = torusMaterial;
 
-loader.load(bun, (mesh: any) => {
-    console.log(mesh);
-    scene.add(mesh);
-});
+const cylinder = babylon.Mesh.CreateCylinder("cylinder", 2, 2, 2, 12, 1, scene);
+cylinder.position.x = 5;
+cylinder.rotation.x = -0.2;
 
-const render = () => {
-    requestAnimationFrame(render);
+const cylinderMaterial = new babylon.StandardMaterial("material", scene);
+cylinderMaterial.emissiveColor = new babylon.Color3(1, 0.58, 0);
+cylinder.material = cylinderMaterial;
 
-    renderer.render(scene, camera);
+let t = 0;
+const renderLoop = () => {
+    scene.render();
+    t -= 0.01;
+    box.rotation.y = t * 2;
+    torus.scaling.z = Math.abs(Math.sin(t * 2)) + 0.5;
+    cylinder.position.y = Math.sin(t * 3);
 };
+engine.runRenderLoop(renderLoop);
 
-render();
+window.addEventListener("resize", () => engine.resize());
