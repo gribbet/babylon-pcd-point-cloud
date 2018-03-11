@@ -1,5 +1,10 @@
 import * as babylon from "babylonjs";
 
+import { load } from "./pcd";
+
+const bunny = require("./bunny.pcd");
+load(bunny).then(_ => console.log(_));
+
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 const engine = new babylon.Engine(canvas);
 const scene = new babylon.Scene(engine);

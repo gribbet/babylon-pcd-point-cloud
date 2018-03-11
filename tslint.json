@@ -3,6 +3,7 @@
     "rules": {
         "no-implicit-dependencies": [true, "dev"],
         "no-console": false,
+        "no-shadowed-variable": false,
         "no-var-requires": false
     }
 }
