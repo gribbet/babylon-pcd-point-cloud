@@ -4,25 +4,31 @@ import * as webpack from "webpack";
 const configuration: webpack.Configuration = {
     context: `${__dirname}/source`,
     entry: "./index.ts",
+    module: {
+        rules: [
+            {
+                exclude: /node_modules/,
+                loader: "ts-loader",
+                test: /\.ts$/
+            },
+            {
+                loader: "file-loader",
+                test: /\.pcd$/
+            }
+        ]
+    },
     output: {
         path: `${__dirname}/build`,
         publicPath: "/"
-    },
-    resolve: {
-        extensions: [".ts", ".js"]
-    },
-    module: {
-        rules: [{
-            test: /\.ts$/,
-            exclude: /node_modules/,
-            loader: "ts-loader"
-        }]
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: "index.html"
         })
-    ]
+    ],
+    resolve: {
+        extensions: [".ts", ".js"]
+    }
 };
 
 export default configuration;
