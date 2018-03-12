@@ -1,6 +1,6 @@
 import * as babylon from "babylonjs";
 
-import * as pcd from "./pcd";
+import { load as loadPcd } from "./pcd";
 
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 const engine = new babylon.Engine(canvas);
@@ -17,7 +17,7 @@ const camera = new babylon.ArcRotateCamera(
     scene
 );
 camera.minZ = 0;
-camera.lowerRadiusLimit = 0.5;
+camera.lowerRadiusLimit = 0.1;
 camera.attachControl(canvas, true);
 
 const light = new babylon.PointLight(
@@ -27,29 +27,42 @@ const light = new babylon.PointLight(
 );
 
 async function load() {
-    const bunny = await pcd.load(require("./bunny.pcd"));
-    const vertices = bunny.position;
-    if (!vertices) {
+    console.time("pcd");
+    const pcd = await loadPcd(require("./bunny.pcd"));
+    console.timeEnd("pcd");
+
+    console.time("create");
+
+    const positions = pcd.positions;
+    if (!positions) {
         throw new Error("Load failed");
     }
 
-    const system = new babylon.SolidParticleSystem("system", scene, {
-        updatable: false
-    });
-    const model = babylon.MeshBuilder.CreateSphere(
-        "model",
-        { diameter: 0.02 },
-        scene
+    const points = new babylon.Mesh("points", scene);
+
+    points.setVerticesData(babylon.VertexBuffer.PositionKind, positions);
+    points.setIndices([]);
+
+    const material = new babylon.StandardMaterial("material", scene);
+    material.emissiveColor = babylon.Color3.Red();
+    material.alpha = 0.1;
+    material.pointsCloud = true;
+    material.pointSize = 5;
+    material.disableLighting = true;
+
+    points.material = material;
+
+    const bounds = points.getBoundingInfo().boundingSphere;
+    camera.target = bounds.center;
+    camera.radius = bounds.radius * 4;
+
+    console.timeEnd("create");
+
+    console.log(
+        `Loaded ${pcd.header.points} points. Center: ${
+            bounds.center
+        }, Radius: ${bounds.radius}`
     );
-    system.addShape(model, bunny.header.points, {
-        positionFunction: (particle: any, i: number) => {
-            particle.position.x = vertices[i * 3 + 0];
-            particle.position.y = vertices[i * 3 + 1];
-            particle.position.z = vertices[i * 3 + 2];
-        }
-    });
-    system.buildMesh();
-    model.dispose();
 }
 
 const renderLoop = () => {
