@@ -3,6 +3,7 @@ import * as webpack from "webpack";
 
 const configuration: webpack.Configuration = {
     context: `${__dirname}/source`,
+    devtool: "source-map",
     entry: "./index.ts",
     module: {
         rules: [
