@@ -873,9 +873,9 @@ babylon@^7.0.0-beta.30:
   version "7.0.0-beta.40"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.40.tgz#91fc8cd56d5eb98b28e6fde41045f2957779940a"
 
-babylonjs@^3.2.0-alphaC:
-  version "3.2.0-alphaC"
-  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-3.2.0-alphaC.tgz#85da0f099fb974af13ae4e7032159451eaa12a9f"
+babylonjs@3.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-3.1.1.tgz#6536c180e4b4006d61c77fcba1a2687dbb296331"
   dependencies:
     cannon "0.6.2"
 

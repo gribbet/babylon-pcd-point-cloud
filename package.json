@@ -23,7 +23,7 @@
         "clean": "rm -rf build"
     },
     "dependencies": {
-        "babylonjs": "^3.2.0-alphaC",
+        "babylonjs": "3.1",
         "lzfjs": "^1.0.1"
     }
 }
