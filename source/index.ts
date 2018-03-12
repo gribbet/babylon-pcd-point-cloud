@@ -45,7 +45,7 @@ async function load() {
 
     const material = new babylon.StandardMaterial("material", scene);
     material.emissiveColor = babylon.Color3.Red();
-    material.alpha = 0.1;
+    material.alpha = 0.3;
     material.pointsCloud = true;
     material.pointSize = 5;
     material.disableLighting = true;
