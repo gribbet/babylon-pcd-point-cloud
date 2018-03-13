@@ -19,6 +19,7 @@ interface IPcdHeader {
 interface IPcd {
     header: IPcdHeader;
     positions: Float32Array | null;
+    colors: Float32Array | null;
 }
 
 const littleEndian = true;
@@ -37,6 +38,10 @@ function parse(buffer: ArrayBuffer): IPcd {
     if (offsets.x !== null && offsets.y !== null && offsets.z !== null) {
         positions = new Float32Array(header.points * 3);
     }
+    let colors: Float32Array | null = null;
+    if (offsets.rgb !== null || offsets.rgba !== null) {
+        colors = new Float32Array(header.points * 4);
+    }
 
     if (header.data === "ascii") {
         const dataString: string = String.fromCharCode.apply(
@@ -53,28 +58,23 @@ function parse(buffer: ArrayBuffer): IPcd {
                 positions[i * 3 + 1] = parseFloat(column[offsets.y || 0]);
                 positions[i * 3 + 2] = parseFloat(column[offsets.z || 0]);
             }
-        });
-    } else if (header.data === "binary") {
-        const view = new DataView(body);
 
-        range(0, header.points).forEach(i => {
-            if (positions) {
-                positions[i * 3 + 0] = view.getFloat32(
-                    size * i + (offsets.x || 0),
-                    littleEndian
-                );
-                positions[i * 3 + 1] = view.getFloat32(
-                    size * i + (offsets.y || 0),
-                    littleEndian
-                );
-                positions[i * 3 + 2] = view.getFloat32(
-                    size * i + (offsets.z || 0),
-                    littleEndian
-                );
+            if (colors) {
+                const intArray = new Int32Array([
+                    parseInt(column[offsets.rgb || offsets.rgba || 0], 10)
+                ]);
+                const view = new DataView(intArray.buffer, 0);
+                colors[i * 3 + 0] = view.getUint8(2) / 255.0;
+                colors[i * 3 + 1] = view.getUint8(1) / 255.0;
+                colors[i * 3 + 2] = view.getUint8(0) / 255.0;
             }
         });
-    } else if (header.data === "binary_compressed") {
-        const uncompressed = decompress(body);
+    } else if (
+        header.data === "binary" ||
+        header.data === "binary_compressed"
+    ) {
+        const uncompressed =
+            header.data === "binary_compressed" ? decompress(body) : body;
         const view = new DataView(uncompressed);
 
         range(0, header.points).forEach(i => {
@@ -92,24 +92,41 @@ function parse(buffer: ArrayBuffer): IPcd {
                     littleEndian
                 );
             }
+
+            if (colors) {
+                const offset = (offsets.rgb || offsets.rgba || 0) + i * 4;
+                colors[i * 4 + 0] = view.getUint8(offset + 2) / 255.0;
+                colors[i * 4 + 1] = view.getUint8(offset + 1) / 255.0;
+                colors[i * 4 + 2] = view.getUint8(offset + 0) / 255.0;
+                colors[i * 4 + 3] = 1.0;
+            }
         });
     }
 
     return {
+        colors,
         header,
         positions
     };
 }
 
 interface IOffsets {
-    x?: number;
-    y?: number;
-    z?: number;
+    x: number | null;
+    y: number | null;
+    z: number | null;
+    rgb: number | null;
+    rgba: number | null;
 }
 function calculateOffsets(
     header: IPcdHeader
 ): { offsets: IOffsets; size: number } {
-    const empty: IOffsets = {};
+    const empty: IOffsets = {
+        x: null,
+        y: null,
+        z: null,
+        rgb: null,
+        rgba: null
+    };
     return header.fields.reduce(
         ({ offsets, size }, field, i) => {
             if (field === "x") {
@@ -121,11 +138,18 @@ function calculateOffsets(
             if (field === "z") {
                 offsets.z = size;
             }
+            if (field === "rgb") {
+                offsets.rgb = size;
+            }
+            if (field === "rgba") {
+                offsets.rgba = size;
+            }
             if (header.data === "ascii") {
                 size = size + 1;
-            } else if (header.data === "binary") {
-                size = size + header.size[i];
-            } else if (header.data === "binary_compressed") {
+            } else if (
+                header.data === "binary" ||
+                header.data === "binary_compressed"
+            ) {
                 size = size + header.size[i] * header.points;
             }
             return {

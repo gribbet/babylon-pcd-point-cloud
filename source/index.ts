@@ -28,7 +28,7 @@ const light = new babylon.PointLight(
 
 async function load() {
     console.time("pcd");
-    const pcd = await loadPcd(require("./bunny.pcd"));
+    const pcd = await loadPcd(require("./milk_color.pcd"));
     console.timeEnd("pcd");
 
     console.time("create");
@@ -42,10 +42,13 @@ async function load() {
 
     points.setVerticesData(babylon.VertexBuffer.PositionKind, positions);
     points.setIndices([]);
+    if (pcd.colors) {
+        points.setVerticesData(babylon.VertexBuffer.ColorKind, pcd.colors);
+    }
 
     const material = new babylon.StandardMaterial("material", scene);
-    material.emissiveColor = babylon.Color3.Red();
-    material.alpha = 0.3;
+    material.emissiveColor = new babylon.Color3(1, 1, 1);
+    material.alpha = 1;
     material.pointsCloud = true;
     material.pointSize = 5;
     material.disableLighting = true;
